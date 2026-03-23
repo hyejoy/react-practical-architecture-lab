@@ -1,9 +1,10 @@
-import "./App.css";
+import './App.css';
+import TypeForm from './react-hook-form/TypeForm';
 
 export default function App() {
   return (
-    <> 
-      <h1>App Component</h1>
+    <>
+      <TypeForm />
     </>
   );
 }
