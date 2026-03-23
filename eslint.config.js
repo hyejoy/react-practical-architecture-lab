@@ -1,65 +1,51 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import js from '@eslint/js';
+import globals from 'globals';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  // 1. 기존 extends 설정 통합 (Next.js, TS, Prettier)
-  ...compat.extends(
-    "next/core-web-vitals",
-    "next/typescript",
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "prettier",
-    "plugin:prettier/recommended",
-  ),
+export default defineConfig([
+  globalIgnores(['dist']),
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    // 2. 무시할 파일 설정
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-    ],
-  },
-  {
-    // 3. 기존 parserOptions 및 환경 설정 (Flat Config 방식)
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
     languageOptions: {
       ecmaVersion: 2020,
-      sourceType: "module",
+      globals: globals.browser,
+      parser: tseslint.parser,
       parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
       },
-    },
-    // 4. 플러그인 및 규칙 설정
-    rules: {
-      // 기존 규칙 추가
-      "jsx-a11y/label-has-associated-control": "off",
-      "jsx-a11y/anchor-is-valid": "off",
-
-      // 기존 덮어쓰기 규칙
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "off",
-
-      // Prettier 충돌 방지 및 설정
-      "prettier/prettier": "off", // 포맷팅 에러는 IDE/CLI에서 직접 확인
-      "react/react-in-jsx-scope": "off", // Next.js에서는 필수 아님
     },
     settings: {
       react: {
-        version: "detect",
+        version: 'detect',
       },
     },
-  },
-];
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z]' }],
+      'no-console': 'off',
 
-export default eslintConfig;
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-refresh/only-export-components': 'off',
+
+      'no-undef': 'off',
+      'no-var': 'error',
+      'prefer-const': 'warn',
+      eqeqeq: 'warn',
+
+      'react/self-closing-comp': ['error', { component: true, html: true }],
+    },
+  },
+]);
